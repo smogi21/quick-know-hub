@@ -131,12 +131,10 @@ export default function QuestionDetail() {
           const userVote = votesData?.find(vote => vote.answer_id === answer.id);
           return {
             ...answer,
-            user_vote: userVote ? {
-              vote_type: userVote.vote_type as 'up' | 'down'
-            } : undefined
+            user_vote: userVote ? { vote_type: userVote.vote_type as 'up' | 'down' } : undefined
           };
         });
-        
+
         setAnswers(answersWithVotes);
       } else {
         setAnswers(answersData || []);

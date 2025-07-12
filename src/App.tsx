@@ -9,6 +9,8 @@ import { Layout } from "@/components/layout/Layout";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import AskQuestion from "./pages/AskQuestion";
+import QuestionDetail from "./pages/QuestionDetail";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +27,8 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Home />} />
             <Route path="/ask" element={<AskQuestion />} />
+            <Route path="/question/:id" element={<QuestionDetail />} />
+            <Route path="/admin" element={<Admin />} />
             <Route path="/auth" element={<Auth />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
