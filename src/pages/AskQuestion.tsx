@@ -252,7 +252,7 @@ export default function AskQuestion() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/home')}
               >
                 Cancel
               </Button>

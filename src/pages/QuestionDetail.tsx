@@ -9,6 +9,7 @@ import { ArrowUp, ArrowDown, Check, Eye, Clock, User, Edit, Trash2, ChevronRight
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { VoteButtons } from '@/components/VoteButtons';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -390,14 +391,21 @@ export default function QuestionDetail() {
           {/* Author info */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={question.profiles?.avatar_url || ''} />
-                <AvatarFallback>
-                  <User className="h-4 w-4" />
-                </AvatarFallback>
-              </Avatar>
+              <Link to={`/profile/${question.author_id}`}>
+                <Avatar className="h-8 w-8 hover:ring-2 hover:ring-primary/20 transition-all">
+                  <AvatarImage src={question.profiles?.avatar_url || ''} />
+                  <AvatarFallback>
+                    <User className="h-4 w-4" />
+                  </AvatarFallback>
+                </Avatar>
+              </Link>
               <div>
-                <p className="font-medium">{question.profiles?.username}</p>
+                <Link 
+                  to={`/profile/${question.author_id}`} 
+                  className="font-medium hover:text-primary transition-colors block"
+                >
+                  {question.profiles?.username}
+                </Link>
                 <p className="text-sm text-muted-foreground">
                   {question.profiles?.role === 'admin' && (
                     <Badge variant="destructive" className="text-xs">Admin</Badge>
@@ -421,23 +429,16 @@ export default function QuestionDetail() {
               <div className="flex space-x-4">
                 {/* Voting */}
                 <div className="flex flex-col items-center space-y-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleVote(answer.id, 'up')}
-                    className={`p-1 ${answer.user_vote?.vote_type === 'up' ? 'text-green-600' : ''}`}
-                  >
-                    <ArrowUp className="h-5 w-5" />
-                  </Button>
-                  <span className="font-semibold text-lg">{answer.vote_count}</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleVote(answer.id, 'down')}
-                    className={`p-1 ${answer.user_vote?.vote_type === 'down' ? 'text-red-600' : ''}`}
-                  >
-                    <ArrowDown className="h-5 w-5" />
-                  </Button>
+                  <VoteButtons
+                    answerId={answer.id}
+                    initialVoteCount={answer.vote_count}
+                    userVote={answer.user_vote?.vote_type}
+                    onVoteChange={(newVoteCount) => {
+                      setAnswers(prev => prev.map(a => 
+                        a.id === answer.id ? { ...a, vote_count: newVoteCount } : a
+                      ));
+                    }}
+                  />
 
                   {/* Accept button */}
                   {user?.id === question.author_id && (
@@ -469,14 +470,21 @@ export default function QuestionDetail() {
                   {/* Answer meta */}
                   <div className="flex items-center justify-between pt-4 border-t">
                     <div className="flex items-center space-x-3">
-                      <Avatar className="h-6 w-6">
-                        <AvatarImage src={answer.profiles?.avatar_url || ''} />
-                        <AvatarFallback>
-                          <User className="h-3 w-3" />
-                        </AvatarFallback>
-                      </Avatar>
+                      <Link to={`/profile/${answer.author_id}`}>
+                        <Avatar className="h-6 w-6 hover:ring-2 hover:ring-primary/20 transition-all">
+                          <AvatarImage src={answer.profiles?.avatar_url || ''} />
+                          <AvatarFallback>
+                            <User className="h-3 w-3" />
+                          </AvatarFallback>
+                        </Avatar>
+                      </Link>
                       <div className="text-sm">
-                        <span className="font-medium">{answer.profiles?.username}</span>
+                        <Link 
+                          to={`/profile/${answer.author_id}`} 
+                          className="font-medium hover:text-primary transition-colors"
+                        >
+                          {answer.profiles?.username}
+                        </Link>
                         {answer.profiles?.role === 'admin' && (
                           <Badge variant="destructive" className="text-xs ml-2">Admin</Badge>
                         )}

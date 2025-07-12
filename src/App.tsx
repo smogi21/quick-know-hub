@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import AskQuestion from "./pages/AskQuestion";
 import QuestionDetail from "./pages/QuestionDetail";
+import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
@@ -40,6 +41,11 @@ const App = () => (
               <Route path="/question/:id" element={
                 <Layout>
                   <QuestionDetail />
+                </Layout>
+              } />
+              <Route path="/profile/:userId?" element={
+                <Layout>
+                  <Profile />
                 </Layout>
               } />
               <Route path="/admin" element={
