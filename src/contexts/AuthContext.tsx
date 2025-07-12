@@ -109,18 +109,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = async () => {
-    setIsLoading(true);
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
       setUser(null);
       setProfile(null);
+      
+      // Force redirect to landing page
       window.location.href = '/';
     } catch (error) {
-      throw new Error(error instanceof Error ? error.message : 'Logout failed');
-    } finally {
-      setIsLoading(false);
+      console.error('Logout error:', error);
+      // Force redirect even if logout fails
+      window.location.href = '/';
     }
   };
 

@@ -113,17 +113,21 @@ export default function AskQuestion() {
     }
 
     setIsSubmitting(true);
+    console.log('Submitting question:', { data, userId: user.id });
     
     try {
-      // Simple insert without complex selects
-      const { error } = await supabase
+      const { data: result, error } = await supabase
         .from('questions')
         .insert({
           title: data.title,
           description: data.description,
           tags: data.tags,
           author_id: user.id,
-        });
+        })
+        .select()
+        .single();
+
+      console.log('Insert result:', { result, error });
 
       if (error) {
         console.error('Database error:', error);
