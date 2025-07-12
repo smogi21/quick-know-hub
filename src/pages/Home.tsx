@@ -5,6 +5,7 @@ import { StatsCards } from '@/components/home/StatsCards';
 import { SearchAndFilter } from '@/components/home/SearchAndFilter';
 import { QuestionsList } from '@/components/home/QuestionsList';
 import { Pagination } from '@/components/home/Pagination';
+import { Layout } from '@/components/layout/Layout';
 
 export default function Home() {
   const { user } = useAuth();
@@ -22,33 +23,35 @@ export default function Home() {
   const totalPages = Math.ceil(totalQuestions / questionsPerPage);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <StatsCards 
-        totalQuestions={totalQuestions}
-        user={user}
-        questions={questions}
-      />
+    <Layout>
+      <div className="max-w-4xl mx-auto space-y-6">
+        <StatsCards 
+          totalQuestions={totalQuestions}
+          user={user}
+          questions={questions}
+        />
 
-      <SearchAndFilter
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        filter={filter}
-        setFilter={setFilter}
-      />
+        <SearchAndFilter
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          filter={filter}
+          setFilter={setFilter}
+        />
 
-      <QuestionsList
-        questions={questions}
-        loading={loading}
-        filter={filter}
-        user={user}
-        searchQuery={searchQuery}
-      />
+        <QuestionsList
+          questions={questions}
+          loading={loading}
+          filter={filter}
+          user={user}
+          searchQuery={searchQuery}
+        />
 
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        setCurrentPage={setCurrentPage}
-      />
-    </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          setCurrentPage={setCurrentPage}
+        />
+      </div>
+    </Layout>
   );
 }

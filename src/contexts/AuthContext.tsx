@@ -115,6 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       setUser(null);
       setProfile(null);
+      window.location.href = '/';
     } catch (error) {
       throw new Error(error instanceof Error ? error.message : 'Logout failed');
     } finally {

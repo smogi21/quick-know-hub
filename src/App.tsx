@@ -28,11 +28,7 @@ const App = () => (
             <Routes>
               {/* Landing page as the main entry point */}
               <Route path="/" element={<Landing />} />
-              <Route path="/home" element={
-                <Layout>
-                  <Home />
-                </Layout>
-              } />
+              <Route path="/home" element={<Home />} />
               <Route path="/ask" element={
                 <Layout>
                   <AskQuestion />
