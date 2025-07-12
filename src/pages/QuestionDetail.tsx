@@ -75,7 +75,7 @@ export default function QuestionDetail() {
           )
         `)
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       setQuestion(data);

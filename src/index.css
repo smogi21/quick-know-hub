@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    /* Core theme colors */
+    /* Core theme colors - Enhanced for better visibility */
     --background: 0 0% 100%;
     --foreground: 217 25% 15%;
 
@@ -22,8 +22,8 @@
     --primary-hover: 217 91% 55%;
     --primary-muted: 217 91% 95%;
 
-    /* Secondary accent - subtle purple */
-    --secondary: 240 6% 96%;
+    /* Secondary - improved contrast */
+    --secondary: 220 14% 96%;
     --secondary-foreground: 217 25% 15%;
 
     --muted: 220 14% 96%;
@@ -35,8 +35,9 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 94%;
+    /* Enhanced borders and inputs for better visibility */
+    --border: 220 13% 87%;
+    --input: 220 13% 98%;
     --ring: 217 91% 60%;
 
     --radius: 0.5rem;
@@ -59,14 +60,14 @@
   }
 
   .dark {
-    /* Dark theme colors */
+    /* Dark theme colors - Enhanced for better visibility */
     --background: 222 24% 5%;
     --foreground: 220 14% 96%;
 
-    --card: 222 24% 6%;
+    --card: 222 24% 8%;
     --card-foreground: 220 14% 96%;
 
-    --popover: 222 24% 6%;
+    --popover: 222 24% 8%;
     --popover-foreground: 220 14% 96%;
 
     /* Primary brand in dark mode */
@@ -75,10 +76,10 @@
     --primary-hover: 217 91% 70%;
     --primary-muted: 217 50% 15%;
 
-    --secondary: 222 20% 10%;
+    --secondary: 222 20% 12%;
     --secondary-foreground: 220 14% 96%;
 
-    --muted: 222 20% 8%;
+    --muted: 222 20% 10%;
     --muted-foreground: 220 9% 65%;
 
     --accent: 217 91% 15%;
@@ -87,8 +88,9 @@
     --destructive: 0 84% 65%;
     --destructive-foreground: 222 24% 5%;
 
-    --border: 222 20% 12%;
-    --input: 222 20% 10%;
+    /* Enhanced visibility for inputs and borders */
+    --border: 222 20% 15%;
+    --input: 222 20% 15%;
     --ring: 217 91% 65%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
