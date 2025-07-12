@@ -5,6 +5,7 @@ import { Question } from '@/types';
 import { ReputationBadge } from '@/components/ReputationBadge';
 import { UserBadges } from '@/components/UserBadges';
 import { formatTimeAgo } from '@/utils/dateUtils';
+import { QuestionVoteButtons } from '@/components/QuestionVoteButtons';
 
 interface QuestionCardProps {
   question: Question;
@@ -19,9 +20,19 @@ export function QuestionCard({ question }: QuestionCardProps) {
 
   return (
     <Card className="hover:shadow-md transition-shadow">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="space-y-2 flex-1">
+      <CardContent className="pt-6">
+        <div className="flex space-x-4">
+          {/* Vote buttons */}
+          <div className="flex-shrink-0">
+            <QuestionVoteButtons
+              questionId={question.id}
+              initialVoteCount={question.vote_count || 0}
+              userVote={question.user_vote?.vote_type}
+            />
+          </div>
+          
+          {/* Question content */}
+          <div className="flex-1 space-y-3">
             <CardTitle className="text-lg hover:text-primary cursor-pointer">
               <Link to={`/question/${question.id}`}>
                 {question.title}
@@ -37,34 +48,30 @@ export function QuestionCard({ question }: QuestionCardProps) {
                 </Badge>
               ))}
             </div>
-          </div>
-          <div className="flex flex-col items-end space-y-1 ml-4">
-            <div className="text-sm text-muted-foreground">
-              {question.view_count} views
+            
+            {/* Stats and author info */}
+            <div className="flex items-center justify-between text-sm text-muted-foreground pt-2">
+              <div className="flex items-center gap-2">
+                <span>Asked by </span>
+                <Link 
+                  to={`/profile/${question.author_id}`}
+                  className="hover:text-primary hover:underline"
+                >
+                  {question.profiles?.username || 'Unknown'}
+                </Link>
+                <ReputationBadge 
+                  reputation={question.profiles?.reputation || 0} 
+                  className="text-xs"
+                />
+                <UserBadges userId={question.author_id} limit={2} />
+              </div>
+              <div className="flex items-center gap-4">
+                <span>{question.view_count} views</span>
+                <span>{question.answer_count} answers</span>
+                <span>{formatTimeAgo(question.created_at)}</span>
+              </div>
             </div>
-            <div className="text-sm text-muted-foreground">
-              {question.answer_count} answers
-            </div>
           </div>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-0">
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <span>Asked by </span>
-            <Link 
-              to={`/profile/${question.author_id}`}
-              className="hover:text-primary hover:underline"
-            >
-              {question.profiles?.username || 'Unknown'}
-            </Link>
-            <ReputationBadge 
-              reputation={question.profiles?.reputation || 0} 
-              className="text-xs"
-            />
-            <UserBadges userId={question.author_id} limit={2} />
-          </div>
-          <span>{formatTimeAgo(question.created_at)}</span>
         </div>
       </CardContent>
     </Card>

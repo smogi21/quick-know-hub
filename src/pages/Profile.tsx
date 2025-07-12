@@ -211,14 +211,14 @@ export default function Profile() {
                 </div>
               </div>
 
-              {/* User Badges */}
-              <div className="flex flex-wrap gap-2 pt-2">
-                <UserBadges userId={profile.user_id} />
-              </div>
+            {/* User Badges */}
+            <div className="flex flex-wrap gap-2 pt-2">
+              <UserBadges userId={profile.user_id} />
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </CardContent>
+    </Card>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
