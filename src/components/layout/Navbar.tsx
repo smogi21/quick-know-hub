@@ -13,6 +13,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { ThemeToggle } from './ThemeToggle';
 import { useAuth } from '@/contexts/AuthContext';
+import { NotificationDropdown } from '../NotificationDropdown';
 
 export function Navbar() {
   const { user, logout } = useAuth();
@@ -84,15 +85,7 @@ export function Navbar() {
                 </Link>
 
                 {/* Notifications */}
-                <Button variant="ghost" size="sm" className="relative">
-                  <Bell className="h-5 w-5" />
-                  <Badge
-                    variant="destructive"
-                    className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-xs p-0"
-                  >
-                    3
-                  </Badge>
-                </Button>
+                <NotificationDropdown />
 
                 {/* Profile Dropdown */}
                 <DropdownMenu>
