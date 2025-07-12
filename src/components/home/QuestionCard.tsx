@@ -27,7 +27,7 @@ export function QuestionCard({ question }: QuestionCardProps) {
             <QuestionVoteButtons
               questionId={question.id}
               initialVoteCount={question.vote_count || 0}
-              userVote={question.user_vote?.vote_type}
+              userVote={question.user_vote?.vote_type || null}
             />
           </div>
           

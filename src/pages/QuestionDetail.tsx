@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { VoteButtons } from '@/components/VoteButtons';
+import { QuestionVoteButtons } from '@/components/QuestionVoteButtons';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -21,12 +22,16 @@ interface Question {
   author_id: string;
   view_count: number;
   answer_count: number;
+  vote_count?: number;
   created_at: string;
   updated_at: string;
   profiles: {
     username: string;
     avatar_url: string | null;
     role: string;
+  };
+  user_vote?: {
+    vote_type: 'up' | 'down';
   };
 }
 
@@ -380,37 +385,53 @@ export default function QuestionDetail() {
         </CardHeader>
 
         <CardContent className="space-y-4">
-          {/* Question content */}
-          <div 
-            className="prose prose-sm max-w-none dark:prose-invert"
-            dangerouslySetInnerHTML={{ __html: question.description }}
-          />
+          <div className="flex space-x-4">
+            {/* Question vote buttons */}
+            <div className="flex-shrink-0">
+              <QuestionVoteButtons
+                questionId={question.id}
+                initialVoteCount={question.vote_count || 0}
+                userVote={question.user_vote?.vote_type}
+                onVoteChange={(newVoteCount) => {
+                  setQuestion(prev => prev ? { ...prev, vote_count: newVoteCount } : null);
+                }}
+              />
+            </div>
+            
+            {/* Question content */}
+            <div className="flex-1">
+              <div 
+                className="prose prose-sm max-w-none dark:prose-invert"
+                dangerouslySetInnerHTML={{ __html: question.description }}
+              />
 
-          <Separator />
+              <Separator className="my-4" />
 
-          {/* Author info */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Link to={`/profile/${question.author_id}`}>
-                <Avatar className="h-8 w-8 hover:ring-2 hover:ring-primary/20 transition-all">
-                  <AvatarImage src={question.profiles?.avatar_url || ''} />
-                  <AvatarFallback>
-                    <User className="h-4 w-4" />
-                  </AvatarFallback>
-                </Avatar>
-              </Link>
-              <div>
-                <Link 
-                  to={`/profile/${question.author_id}`} 
-                  className="font-medium hover:text-primary transition-colors block"
-                >
-                  {question.profiles?.username}
-                </Link>
-                <p className="text-sm text-muted-foreground">
-                  {question.profiles?.role === 'admin' && (
-                    <Badge variant="destructive" className="text-xs">Admin</Badge>
-                  )}
-                </p>
+              {/* Author info */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <Link to={`/profile/${question.author_id}`}>
+                    <Avatar className="h-8 w-8 hover:ring-2 hover:ring-primary/20 transition-all">
+                      <AvatarImage src={question.profiles?.avatar_url || ''} />
+                      <AvatarFallback>
+                        <User className="h-4 w-4" />
+                      </AvatarFallback>
+                    </Avatar>
+                  </Link>
+                  <div>
+                    <Link 
+                      to={`/profile/${question.author_id}`} 
+                      className="font-medium hover:text-primary transition-colors block"
+                    >
+                      {question.profiles?.username}
+                    </Link>
+                    <p className="text-sm text-muted-foreground">
+                      {question.profiles?.role === 'admin' && (
+                        <Badge variant="destructive" className="text-xs">Admin</Badge>
+                      )}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

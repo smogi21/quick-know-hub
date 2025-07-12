@@ -57,7 +57,32 @@ export function useQuestions() {
       }
 
       if (data) {
-        setQuestions(data);
+        // If user is logged in, fetch their question votes
+        let questionsWithVotes = data;
+        
+        try {
+          const { data: userData } = await supabase.auth.getUser();
+          if (userData?.user) {
+            const questionIds = data.map(q => q.id);
+            const { data: votesData } = await supabase
+              .from('question_votes')
+              .select('question_id, vote_type')
+              .eq('user_id', userData.user.id)
+              .in('question_id', questionIds);
+            
+            questionsWithVotes = data.map(question => {
+              const userVote = votesData?.find(vote => vote.question_id === question.id);
+              return {
+                ...question,
+                user_vote: userVote ? { vote_type: userVote.vote_type } : undefined
+              };
+            });
+          }
+        } catch (voteError) {
+          console.log('Could not fetch vote data:', voteError);
+        }
+        
+        setQuestions(questionsWithVotes);
         setTotalQuestions(count || 0);
       }
     } catch (error) {

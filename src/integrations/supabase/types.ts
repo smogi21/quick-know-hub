@@ -218,6 +218,45 @@ export type Database = {
         }
         Relationships: []
       }
+      question_votes: {
+        Row: {
+          created_at: string
+          id: string
+          question_id: string
+          user_id: string
+          vote_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          question_id: string
+          user_id: string
+          vote_type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          question_id?: string
+          user_id?: string
+          vote_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_votes_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "question_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       questions: {
         Row: {
           answer_count: number | null
@@ -229,6 +268,7 @@ export type Database = {
           title: string
           updated_at: string
           view_count: number | null
+          vote_count: number | null
         }
         Insert: {
           answer_count?: number | null
@@ -240,6 +280,7 @@ export type Database = {
           title: string
           updated_at?: string
           view_count?: number | null
+          vote_count?: number | null
         }
         Update: {
           answer_count?: number | null
@@ -251,6 +292,7 @@ export type Database = {
           title?: string
           updated_at?: string
           view_count?: number | null
+          vote_count?: number | null
         }
         Relationships: [
           {
