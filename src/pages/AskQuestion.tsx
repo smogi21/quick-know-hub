@@ -103,25 +103,31 @@ export default function AskQuestion() {
   };
 
   const onSubmit = async (data: QuestionForm) => {
+    if (!user?.id) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to post a question.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
-    console.log('Submitting question:', { data, user });
     
     try {
-      const { data: questionData, error } = await supabase
+      // Simple insert without complex selects
+      const { error } = await supabase
         .from('questions')
         .insert({
           title: data.title,
           description: data.description,
           tags: data.tags,
           author_id: user.id,
-        })
-        .select()
-        .single();
-      
-      console.log('Question insert result:', { questionData, error });
+        });
 
       if (error) {
-        throw error;
+        console.error('Database error:', error);
+        throw new Error(error.message);
       }
 
       toast({
@@ -134,7 +140,7 @@ export default function AskQuestion() {
       console.error('Error submitting question:', error);
       toast({
         title: "Failed to post question",
-        description: error instanceof Error ? error.message : "Please try again.",
+        description: error instanceof Error ? error.message : "Please check your connection and try again.",
         variant: "destructive",
       });
     } finally {

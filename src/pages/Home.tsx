@@ -12,7 +12,7 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState('newest');
   const [currentPage, setCurrentPage] = useState(1);
-  const questionsPerPage = 10;
+  const questionsPerPage = 20;
 
   const { questions, loading, totalQuestions, fetchQuestions } = useQuestions();
 

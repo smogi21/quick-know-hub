@@ -14,6 +14,7 @@ import QuestionDetail from "./pages/QuestionDetail";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import Settings from "./pages/Settings";
+import Leaderboard from "./pages/Leaderboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -53,6 +54,11 @@ const App = () => (
               <Route path="/settings" element={
                 <Layout>
                   <Settings />
+                </Layout>
+              } />
+              <Route path="/leaderboard" element={
+                <Layout>
+                  <Leaderboard />
                 </Layout>
               } />
               <Route path="/auth" element={<Auth />} />
