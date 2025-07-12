@@ -51,7 +51,13 @@ export function QuestionCard({ question }: QuestionCardProps) {
       <CardContent className="pt-0">
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
-            <span>Asked by {question.profiles?.username || 'Unknown'}</span>
+            <span>Asked by </span>
+            <Link 
+              to={`/profile/${question.author_id}`}
+              className="hover:text-primary hover:underline"
+            >
+              {question.profiles?.username || 'Unknown'}
+            </Link>
             <ReputationBadge 
               reputation={question.profiles?.reputation || 0} 
               className="text-xs"

@@ -125,7 +125,7 @@ export default function AskQuestion() {
         description: "Your question has been published and is now visible to the community.",
       });
 
-      navigate(`/question/${questionData.id}`);
+      navigate('/home');
     } catch (error) {
       console.error('Error submitting question:', error);
       toast({
