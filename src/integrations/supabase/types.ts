@@ -100,6 +100,36 @@ export type Database = {
           },
         ]
       }
+      badges: {
+        Row: {
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          name: string
+          points_required: number | null
+          tier: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          icon: string
+          id?: string
+          name: string
+          points_required?: number | null
+          tier: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          name?: string
+          points_required?: number | null
+          tier?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
@@ -160,6 +190,7 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           id: string
+          reputation: number
           role: string
           updated_at: string
           user_id: string
@@ -169,6 +200,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           id?: string
+          reputation?: number
           role?: string
           updated_at?: string
           user_id: string
@@ -178,6 +210,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           id?: string
+          reputation?: number
           role?: string
           updated_at?: string
           user_id?: string
@@ -229,6 +262,35 @@ export type Database = {
           },
         ]
       }
+      user_badges: {
+        Row: {
+          badge_id: string
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       votes: {
         Row: {
           answer_id: string
@@ -273,6 +335,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      award_badge: {
+        Args: { user_id_param: string; badge_name_param: string }
+        Returns: undefined
+      }
       create_notification: {
         Args: {
           user_id_param: string
@@ -281,6 +347,10 @@ export type Database = {
           question_id_param?: string
           answer_id_param?: string
         }
+        Returns: undefined
+      }
+      update_user_reputation: {
+        Args: { user_id_param: string; points_change: number }
         Returns: undefined
       }
     }

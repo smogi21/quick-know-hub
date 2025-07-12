@@ -8,6 +8,8 @@ import { MessageSquare, Users, TrendingUp, Search, ChevronLeft, ChevronRight } f
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link } from 'react-router-dom';
+import { ReputationBadge } from '@/components/ReputationBadge';
+import { UserBadges } from '@/components/UserBadges';
 
 interface Question {
   id: string;
@@ -22,6 +24,7 @@ interface Question {
   profiles: {
     username: string;
     avatar_url: string | null;
+    reputation: number;
   };
 }
 
@@ -44,7 +47,8 @@ export default function Home() {
           *,
           profiles:author_id (
             username,
-            avatar_url
+            avatar_url,
+            reputation
           )
         `, { count: 'exact' })
         .range((currentPage - 1) * questionsPerPage, currentPage * questionsPerPage - 1);
@@ -255,7 +259,14 @@ export default function Home() {
               </CardHeader>
               <CardContent className="pt-0">
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
-                  <span>Asked by {question.profiles?.username || 'Unknown'}</span>
+                  <div className="flex items-center gap-2">
+                    <span>Asked by {question.profiles?.username || 'Unknown'}</span>
+                    <ReputationBadge 
+                      reputation={question.profiles?.reputation || 0} 
+                      className="text-xs"
+                    />
+                    <UserBadges userId={question.author_id} limit={2} />
+                  </div>
                   <span>{formatTimeAgo(question.created_at)}</span>
                 </div>
               </CardContent>

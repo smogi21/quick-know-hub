@@ -11,7 +11,7 @@ import Auth from "./pages/Auth";
 import AskQuestion from "./pages/AskQuestion";
 import QuestionDetail from "./pages/QuestionDetail";
 import Admin from "./pages/Admin";
-import AdminLogin from "./pages/AdminLogin";
+
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,7 +30,6 @@ const App = () => (
             <Route path="/ask" element={<AskQuestion />} />
             <Route path="/question/:id" element={<QuestionDetail />} />
             <Route path="/admin" element={<Admin />} />
-            <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/auth" element={<Auth />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
