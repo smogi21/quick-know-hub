@@ -17,6 +17,7 @@ interface Profile {
   username: string;
   avatar_url: string | null;
   role: UserRole;
+  reputation: number;
   created_at: string;
   updated_at: string;
 }
@@ -140,6 +141,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setProfile({
           ...data,
           role: data.role as UserRole,
+          reputation: data.reputation || 0,
         });
         setUser({
           id: data.user_id,

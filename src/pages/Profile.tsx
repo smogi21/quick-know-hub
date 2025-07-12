@@ -100,7 +100,7 @@ export default function Profile() {
         .select('id, title, description, tags, view_count, answer_count, created_at')
         .eq('author_id', currentUserId)
         .order('created_at', { ascending: false })
-        .limit(10);
+        .limit(20);
 
       if (questionsError) throw questionsError;
       setQuestions(questionsData || []);
@@ -116,7 +116,7 @@ export default function Profile() {
         `)
         .eq('author_id', currentUserId)
         .order('created_at', { ascending: false })
-        .limit(10);
+        .limit(20);
 
       if (answersError) throw answersError;
       setAnswers(answersData || []);
@@ -240,9 +240,9 @@ export default function Profile() {
       {/* Content Tabs */}
       <Tabs defaultValue="questions" className="space-y-4">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="questions">Questions</TabsTrigger>
-          <TabsTrigger value="answers">Answers</TabsTrigger>
-          <TabsTrigger value="badges">Badges</TabsTrigger>
+          <TabsTrigger value="questions">Questions ({questions.length})</TabsTrigger>
+          <TabsTrigger value="answers">Answers ({answers.length})</TabsTrigger>
+          <TabsTrigger value="badges">Badges ({badges.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="questions" className="space-y-4">

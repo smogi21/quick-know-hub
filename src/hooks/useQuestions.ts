@@ -14,6 +14,8 @@ export function useQuestions() {
     filter: string
   ) => {
     setLoading(true);
+    console.log('Fetching questions with params:', { currentPage, questionsPerPage, searchQuery, filter });
+    
     try {
       let query = supabase
         .from('questions')
@@ -26,6 +28,8 @@ export function useQuestions() {
           )
         `, { count: 'exact' })
         .range((currentPage - 1) * questionsPerPage, currentPage * questionsPerPage - 1);
+
+      console.log('Base query created');
 
       // Apply search filter
       if (searchQuery) {
@@ -50,9 +54,12 @@ export function useQuestions() {
       }
 
       const { data, error, count } = await query;
+      console.log('Query result:', { data, error, count });
 
       if (error) {
         console.error('Error fetching questions:', error);
+        setQuestions([]);
+        setTotalQuestions(0);
         return;
       }
 

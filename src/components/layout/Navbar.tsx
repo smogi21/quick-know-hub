@@ -120,7 +120,15 @@ export function Navbar() {
                       </DropdownMenuItem>
                     )}
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={logout}>
+                    <DropdownMenuItem onClick={async () => {
+                      try {
+                        await logout();
+                      } catch (error) {
+                        console.error('Logout error:', error);
+                        // Force redirect even if logout fails
+                        window.location.href = '/';
+                      }
+                    }}>
                       <LogOut className="mr-2 h-4 w-4" />
                       Logout
                     </DropdownMenuItem>

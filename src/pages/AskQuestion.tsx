@@ -104,6 +104,8 @@ export default function AskQuestion() {
 
   const onSubmit = async (data: QuestionForm) => {
     setIsSubmitting(true);
+    console.log('Submitting question:', { data, user });
+    
     try {
       const { data: questionData, error } = await supabase
         .from('questions')
@@ -115,6 +117,8 @@ export default function AskQuestion() {
         })
         .select()
         .single();
+      
+      console.log('Question insert result:', { questionData, error });
 
       if (error) {
         throw error;
