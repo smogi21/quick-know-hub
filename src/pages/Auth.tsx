@@ -17,7 +17,7 @@ export default function Auth() {
     password: '', 
     confirmPassword: '' 
   });
-  const { login, isLoading } = useAuth();
+  const { login, signup, loginWithGoogle, isLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -50,19 +50,32 @@ export default function Auth() {
       return;
     }
     
-    // TODO: Implement signup with Supabase
-    toast({
-      title: "Account created!",
-      description: "Please check your email to verify your account.",
-    });
+    try {
+      await signup(signupData.email, signupData.password, signupData.username);
+      navigate('/');
+      toast({
+        title: "Account created!",
+        description: "Welcome to StackIt! You can now ask questions and participate in discussions.",
+      });
+    } catch (error) {
+      toast({
+        title: "Signup failed",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleGoogleAuth = () => {
-    // TODO: Implement Google OAuth with Supabase
-    toast({
-      title: "Google authentication",
-      description: "Google OAuth will be available once Supabase is connected.",
-    });
+  const handleGoogleAuth = async () => {
+    try {
+      await loginWithGoogle();
+    } catch (error) {
+      toast({
+        title: "Google authentication failed",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

@@ -1,168 +1,310 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ChevronUp, ChevronDown, MessageSquare, User, Calendar, Tag } from 'lucide-react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { useEffect, useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { MessageSquare, Users, TrendingUp, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { Link } from 'react-router-dom';
 
-// Mock data for questions
-const mockQuestions = [
-  {
-    id: 1,
-    title: "How to implement authentication with Supabase in React?",
-    description: "I'm trying to set up authentication in my React app using Supabase. What's the best approach for handling login, logout, and session management?",
-    tags: ["react", "supabase", "authentication"],
-    author: { username: "john_dev", id: "1" },
-    voteCount: 15,
-    answerCount: 3,
-    createdAt: "2024-01-15T10:30:00Z"
-  },
-  {
-    id: 2,
-    title: "Best practices for TypeScript in large React applications",
-    description: "What are some proven patterns and best practices when using TypeScript in large-scale React applications? Looking for advice on project structure, type definitions, and maintainability.",
-    tags: ["typescript", "react", "best-practices"],
-    author: { username: "sarah_ts", id: "2" },
-    voteCount: 23,
-    answerCount: 7,
-    createdAt: "2024-01-14T15:45:00Z"
-  },
-  {
-    id: 3,
-    title: "Optimizing database queries in Supabase with RLS",
-    description: "I'm working with Row Level Security in Supabase and noticed some performance issues. How can I optimize my queries while maintaining proper security?",
-    tags: ["supabase", "database", "performance", "rls"],
-    author: { username: "db_expert", id: "3" },
-    voteCount: 8,
-    answerCount: 2,
-    createdAt: "2024-01-13T09:15:00Z"
-  }
-];
+interface Question {
+  id: string;
+  title: string;
+  description: string;
+  tags: string[];
+  author_id: string;
+  view_count: number;
+  answer_count: number;
+  created_at: string;
+  updated_at: string;
+  profiles: {
+    username: string;
+    avatar_url: string | null;
+  };
+}
 
 export default function Home() {
-  const [questions] = useState(mockQuestions);
+  const { user } = useAuth();
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filter, setFilter] = useState('newest');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalQuestions, setTotalQuestions] = useState(0);
+  const questionsPerPage = 10;
+
+  const fetchQuestions = async () => {
+    setLoading(true);
+    try {
+      let query = supabase
+        .from('questions')
+        .select(`
+          *,
+          profiles:author_id (
+            username,
+            avatar_url
+          )
+        `, { count: 'exact' })
+        .range((currentPage - 1) * questionsPerPage, currentPage * questionsPerPage - 1);
+
+      // Apply search filter
+      if (searchQuery) {
+        query = query.or(
+          `title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,tags.cs.{${searchQuery}}`
+        );
+      }
+
+      // Apply sorting
+      switch (filter) {
+        case 'newest':
+          query = query.order('created_at', { ascending: false });
+          break;
+        case 'unanswered':
+          query = query.eq('answer_count', 0).order('created_at', { ascending: false });
+          break;
+        case 'most-voted':
+          query = query.order('view_count', { ascending: false });
+          break;
+        default:
+          query = query.order('created_at', { ascending: false });
+      }
+
+      const { data, error, count } = await query;
+
+      if (error) {
+        console.error('Error fetching questions:', error);
+        return;
+      }
+
+      if (data) {
+        setQuestions(data);
+        setTotalQuestions(count || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching questions:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchQuestions();
+  }, [currentPage, searchQuery, filter]);
+
+  const totalPages = Math.ceil(totalQuestions / questionsPerPage);
 
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-    
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
-    return `${Math.floor(diffInMinutes / 1440)}d ago`;
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 1) return '1 day ago';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
+    return `${Math.ceil(diffDays / 30)} months ago`;
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">All Questions</h1>
-          <p className="text-muted-foreground mt-1">
-            Find answers to your technical questions from the community
-          </p>
-        </div>
-        <Link to="/ask">
-          <Button>Ask Question</Button>
-        </Link>
-      </div>
-
-      {/* Stats */}
+    <div className="max-w-4xl mx-auto space-y-6">
+      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-primary">{questions.length}</div>
-            <p className="text-xs text-muted-foreground">Total Questions</p>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Questions</CardTitle>
+            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalQuestions}</div>
+            <p className="text-xs text-muted-foreground">Community knowledge base</p>
           </CardContent>
         </Card>
+        
         <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-primary">
-              {questions.reduce((acc, q) => acc + q.answerCount, 0)}
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Your Status</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{user ? 'Member' : 'Guest'}</div>
+            <p className="text-xs text-muted-foreground">
+              {user ? `Welcome back, ${user.username}!` : 'Join to participate'}
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Questions Today</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {questions.filter(q => 
+                new Date(q.created_at).toDateString() === new Date().toDateString()
+              ).length}
             </div>
-            <p className="text-xs text-muted-foreground">Total Answers</p>
+            <p className="text-xs text-muted-foreground">Fresh content</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-primary">156</div>
-            <p className="text-xs text-muted-foreground">Active Users</p>
-          </CardContent>
-        </Card>
+      </div>
+
+      {/* Search and Filter */}
+      <div className="flex flex-col sm:flex-row gap-4 items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search questions..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <Select value={filter} onValueChange={setFilter}>
+          <SelectTrigger className="w-full sm:w-[200px]">
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="newest">Newest</SelectItem>
+            <SelectItem value="unanswered">Unanswered</SelectItem>
+            <SelectItem value="most-voted">Most Viewed</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Questions List */}
       <div className="space-y-4">
-        {questions.map((question) => (
-          <Card key={question.id} className="hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex space-x-4">
-                {/* Vote and Stats */}
-                <div className="flex flex-col items-center space-y-2 min-w-20">
-                  <div className="flex flex-col items-center">
-                    <Button variant="ghost" size="sm" className="p-1">
-                      <ChevronUp className="h-5 w-5" />
-                    </Button>
-                    <span className="text-lg font-semibold">{question.voteCount}</span>
-                    <Button variant="ghost" size="sm" className="p-1">
-                      <ChevronDown className="h-5 w-5" />
-                    </Button>
-                  </div>
-                  <div className="flex flex-col items-center text-center">
-                    <div className="flex items-center space-x-1 text-sm text-muted-foreground">
-                      <MessageSquare className="h-3 w-3" />
-                      <span>{question.answerCount}</span>
-                    </div>
-                    <span className="text-xs text-muted-foreground">answers</span>
-                  </div>
-                </div>
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold">
+            {filter === 'newest' && 'Recent Questions'}
+            {filter === 'unanswered' && 'Unanswered Questions'}
+            {filter === 'most-voted' && 'Most Viewed Questions'}
+          </h2>
+          {user && (
+            <Link to="/ask">
+              <Button>Ask Question</Button>
+            </Link>
+          )}
+        </div>
 
-                {/* Question Content */}
-                <div className="flex-1">
-                  <Link
-                    to={`/question/${question.id}`}
-                    className="block group"
-                  >
-                    <h2 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors mb-2">
-                      {question.title}
-                    </h2>
-                    <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
-                      {question.description}
-                    </p>
-                  </Link>
-
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {question.tags.map((tag) => (
-                      <Badge key={tag} variant="secondary" className="text-xs">
-                        <Tag className="h-3 w-3 mr-1" />
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-
-                  {/* Author and Time */}
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <div className="flex items-center space-x-2">
-                      <Avatar className="h-6 w-6">
-                        <AvatarFallback className="text-xs">
-                          {question.author.username.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span>{question.author.username}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="h-3 w-3" />
-                      <span>{formatTimeAgo(question.createdAt)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+        {loading ? (
+          <div className="space-y-4">
+            {[...Array(5)].map((_, i) => (
+              <Card key={i} className="animate-pulse">
+                <CardHeader>
+                  <div className="h-4 bg-muted rounded w-3/4"></div>
+                  <div className="h-3 bg-muted rounded w-1/2"></div>
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
+        ) : questions.length === 0 ? (
+          <Card>
+            <CardContent className="py-8 text-center">
+              <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No questions found</h3>
+              <p className="text-muted-foreground mb-4">
+                {searchQuery 
+                  ? "Try adjusting your search terms or filters"
+                  : "Be the first to ask a question!"
+                }
+              </p>
+              {user && (
+                <Link to="/ask">
+                  <Button>Ask the First Question</Button>
+                </Link>
+              )}
             </CardContent>
           </Card>
-        ))}
+        ) : (
+          questions.map((question) => (
+            <Card key={question.id} className="hover:shadow-md transition-shadow">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="space-y-2 flex-1">
+                    <CardTitle className="text-lg hover:text-primary cursor-pointer">
+                      <Link to={`/question/${question.id}`}>
+                        {question.title}
+                      </Link>
+                    </CardTitle>
+                    <CardDescription className="line-clamp-2">
+                      {question.description.length > 150 
+                        ? `${question.description.substring(0, 150)}...`
+                        : question.description
+                      }
+                    </CardDescription>
+                    <div className="flex flex-wrap gap-2">
+                      {question.tags.map((tag) => (
+                        <Badge key={tag} variant="secondary">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end space-y-1 ml-4">
+                    <div className="text-sm text-muted-foreground">
+                      {question.view_count} views
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {question.answer_count} answers
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
+                  <span>Asked by {question.profiles?.username || 'Unknown'}</span>
+                  <span>{formatTimeAgo(question.created_at)}</span>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Previous
+          </Button>
+          
+          <div className="flex items-center space-x-1">
+            {[...Array(Math.min(5, totalPages))].map((_, i) => {
+              const pageNum = i + 1;
+              return (
+                <Button
+                  key={pageNum}
+                  variant={currentPage === pageNum ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCurrentPage(pageNum)}
+                  className="w-8 h-8 p-0"
+                >
+                  {pageNum}
+                </Button>
+              );
+            })}
+          </div>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            Next
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
