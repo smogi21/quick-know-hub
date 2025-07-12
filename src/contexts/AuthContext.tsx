@@ -68,10 +68,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           data: {
             username,
           },
+          emailRedirectTo: `${window.location.origin}/`,
         },
       });
       
       if (error) throw error;
+      
+      if (data.user && !data.user.email_confirmed_at) {
+        // Email confirmation required
+        return;
+      }
       
       if (data.user) {
         await fetchProfile(data.user.id);
@@ -89,7 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin,
+          redirectTo: `${window.location.origin}/`,
         },
       });
       
