@@ -100,7 +100,8 @@ export default function QuestionDetail() {
     if (!id) return;
     
     try {
-      let query = supabase
+      // Fetch answers first
+      const { data: answersData, error: answersError } = await supabase
         .from('answers')
         .select(`
           *,
@@ -114,22 +115,32 @@ export default function QuestionDetail() {
         .order('is_accepted', { ascending: false })
         .order('vote_count', { ascending: false });
 
-      if (user) {
-        query = query.select(`
-          *,
-          profiles:author_id (
-            username,
-            avatar_url,
-            role
-          ),
-          votes!inner(vote_type)
-        `);
-      }
+      if (answersError) throw answersError;
 
-      const { data, error } = await query;
-      if (error) throw error;
-      
-      setAnswers(data || []);
+      // If user is logged in, fetch their votes separately
+      if (user && answersData) {
+        const answerIds = answersData.map(answer => answer.id);
+        const { data: votesData } = await supabase
+          .from('votes')
+          .select('answer_id, vote_type')
+          .eq('user_id', user.id)
+          .in('answer_id', answerIds);
+
+        // Combine answers with user votes
+        const answersWithVotes = answersData.map(answer => {
+          const userVote = votesData?.find(vote => vote.answer_id === answer.id);
+          return {
+            ...answer,
+            user_vote: userVote ? {
+              vote_type: userVote.vote_type as 'up' | 'down'
+            } : undefined
+          };
+        });
+        
+        setAnswers(answersWithVotes);
+      } else {
+        setAnswers(answersData || []);
+      }
     } catch (error) {
       console.error('Error fetching answers:', error);
     } finally {
