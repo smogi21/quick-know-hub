@@ -2,8 +2,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Trophy, Medal, Award, Star, MessageSquare, ThumbsUp } from 'lucide-react';
-import { Layout } from '@/components/layout/Layout';
-
 // Dummy leaderboard data
 const leaderboardData = [
   {
@@ -103,8 +101,7 @@ const getRankIcon = (rank: number) => {
 
 export default function Leaderboard() {
   return (
-    <Layout>
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6 p-6">
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold">Community Leaderboard</h1>
           <p className="text-muted-foreground">
@@ -205,6 +202,5 @@ export default function Leaderboard() {
           </CardContent>
         </Card>
       </div>
-    </Layout>
   );
 }
